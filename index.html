@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#FFFFFF"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png"/>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Trust Wallet"/>
+<title>Trust Wallet</title>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+:root{
+  --bg:#FFF;--s:#F4F5F7;--s2:#EBEDF0;--bd:#E5E7EB;
+  --t:#111827;--t2:#6B7280;--t3:#9CA3AF;
+  --blue:#0484FF;--blue2:#0066CC;--green:#16A34A;--red:#EF4444;
+  --safe:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#111;color:var(--t);overflow:hidden;user-select:none;-webkit-font-smoothing:antialiased}
+#app{height:100%;max-width:430px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;position:relative}
+.sc{display:none;flex-direction:column;height:100%;overflow:hidden}
+.sc.on{display:flex}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;min-height:46px;flex-shrink:0}
+.hdr-t{font-size:17px;font-weight:600;flex:1;text-align:center}
+.ib{width:34px;height:34px;border:none;background:none;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--t);cursor:pointer}
+.ib:active{background:var(--s)}
+
+/* BOTTOM NAV – floating pill (2026 style) */
+.bnav{position:absolute;bottom:0;left:0;right:0;padding:0 12px calc(10px + var(--safe));display:flex;align-items:center;gap:10px;z-index:20;pointer-events:none}
+.pill{flex:1;height:52px;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:26px;border:1px solid var(--bd);box-shadow:0 2px 20px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-around;pointer-events:auto}
+.ni{width:40px;height:40px;border-radius:50%;border:none;background:none;color:var(--t3);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ni.on{color:var(--t)}
+.ni svg{width:22px;height:22px}
+.sfab{width:52px;height:52px;border-radius:50%;background:#fff;border:1px solid var(--bd);box-shadow:0 2px 14px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;color:var(--t);cursor:pointer;pointer-events:auto;flex-shrink:0}
+.sfab svg{width:20px;height:20px}
+
+/* HOME */
+.home-pad{padding:4px 16px 0}
+.wallet-pill{display:inline-flex;align-items:center;gap:8px;background:var(--s);border-radius:100px;padding:4px 12px 4px 4px;font-size:14px;font-weight:600;border:none;cursor:pointer;color:var(--t)}
+.wallet-pill .wi{width:26px;height:26px;border-radius:50%;background:#F0B90B;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+.top-r{display:flex;gap:6px}
+.promo{display:flex;align-items:center;gap:10px;background:#F8F9FB;border:1px solid #EEF0F3;border-radius:14px;padding:11px 13px;margin:10px 0 18px;cursor:pointer}
+.promo-stack{display:flex}
+.promo-stack img{width:22px;height:22px;border-radius:50%;border:1.5px solid #fff;margin-left:-7px;background:#fff}
+.promo-stack img:first-child{margin-left:0}
+.promo-t{flex:1}
+.promo-t strong{display:block;font-size:13px;font-weight:600}
+.promo-t span{font-size:12px;color:var(--blue);font-weight:500}
+.bal{margin-bottom:20px}
+.bal-n{font-size:36px;font-weight:700;letter-spacing:-1.2px;line-height:1.15}
+.bal-c{font-size:14px;font-weight:500;color:var(--green);margin-top:3px}
+.bal-c.dn{color:var(--red)}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:22px}
+.act{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;cursor:pointer;color:var(--t)}
+.act-i{width:52px;height:52px;border-radius:14px;background:var(--s);display:flex;align-items:center;justify-content:center}
+.act.hi .act-i{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(4,132,255,.28)}
+.act span{font-size:12px;font-weight:500;color:var(--t2)}
+.sec{display:flex;align-items:center;justify-content:space-between;padding:0 0 4px}
+.sec h3{font-size:16px;font-weight:600}
+.sec h3 em{font-style:normal;color:var(--t3);font-weight:400}
+.tok{display:flex;align-items:center;gap:12px;padding:11px 0;cursor:pointer}
+.tok:active{opacity:.7}
+.tok-i{position:relative;width:40px;height:40px;flex-shrink:0}
+.tok-i img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--s)}
+.tok-i .bdg{position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-radius:50%;background:#fff;border:1.5px solid #fff;overflow:hidden}
+.tok-i .bdg img{width:14px;height:14px;border-radius:50%}
+.tok-m{flex:1;min-width:0}
+.tok-m .n{font-size:15px;font-weight:600}
+.tok-m .a{font-size:13px;color:var(--t2);margin-top:1px}
+.tok-r{text-align:right}
+.tok-r .f{font-size:15px;font-weight:600}
+.tok-r .c{font-size:12px;font-weight:500;margin-top:1px}
+.tok-r .c.up{color:var(--green)}
+.tok-r .c.dn{color:var(--red)}
+.viewall{display:inline-flex;align-items:center;gap:3px;background:var(--s);border:none;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;margin:4px 0 16px}
+.pb{padding-bottom:calc(78px + var(--safe))}
+
+/* TOKEN DETAIL */
+.td-hero{text-align:center;padding:8px 16px}
+.td-hero img{width:48px;height:48px;border-radius:50%;margin-bottom:8px}
+.td-hero .amt{font-size:26px;font-weight:700}
+.td-hero .fiat{font-size:14px;color:var(--t2);margin-top:2px}
+.td-acts{display:flex;justify-content:center;gap:18px;padding:10px 0 14px}
+.td-acts button{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(--t)}
+.td-acts .ic{width:44px;height:44px;border-radius:50%;background:var(--s);display:flex;align-items:center;justify-content:center}
+.td-acts span{font-size:12px;color:var(--t2);font-weight:500}
+.price-card{margin:0 16px 16px;border:1px solid var(--bd);border-radius:16px;padding:14px}
+.price-card .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.price-card .ph span{font-size:13px;color:var(--t2);font-weight:500}
+.price-card .pv{font-size:22px;font-weight:700}
+.price-card .pc{font-size:13px;margin-top:2px;color:var(--green)}
+.chart{height:110px;margin:10px 0 6px}
+.chart svg{width:100%;height:100%}
+.ranges{display:flex;gap:2px;justify-content:center}
+.ranges button{padding:5px 11px;border-radius:8px;border:none;background:none;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer}
+.ranges button.on{background:var(--s);color:var(--t);font-weight:600}
+
+/* SWAP */
+.swap-box{margin:10px 16px;background:var(--s);border-radius:16px;padding:14px}
+.swap-row{display:flex;align-items:center;justify-content:space-between}
+.swap-row label{font-size:13px;color:var(--t2)}
+.swap-amt{font-size:26px;font-weight:600;border:none;background:none;width:55%;outline:none;color:var(--t)}
+.swap-tok{display:flex;align-items:center;gap:6px;background:#fff;border-radius:20px;padding:5px 10px 5px 5px;font-weight:600;font-size:14px;border:1px solid var(--bd);cursor:pointer}
+.swap-tok img{width:22px;height:22px;border-radius:50%}
+.swap-bal{font-size:12px;color:var(--t3);margin-top:2px}
+.swap-mid{display:flex;justify-content:center;margin:-4px 0}
+.swap-mid button{width:34px;height:34px;border-radius:50%;background:#fff;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--blue);z-index:1}
+.preview{margin:14px 16px;height:50px;border-radius:25px;border:none;background:var(--s2);color:var(--t3);font-size:16px;font-weight:600;width:calc(100% - 32px);cursor:pointer}
+.preview.ready{background:var(--blue);color:#fff}
+.quote{padding:0 16px;font-size:13px;color:var(--t2);display:flex;justify-content:space-between}
+
+/* SEND */
+.send-field{margin:12px 16px;background:var(--s);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.send-field input{flex:1;border:none;background:none;font-size:15px;outline:none;color:var(--t)}
+.send-field input::placeholder{color:var(--t3)}
+.send-field .scan{width:36px;height:36px;border-radius:10px;background:#fff;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t);flex-shrink:0}
+.cta{margin:0 16px 12px;height:50px;border-radius:25px;border:none;background:var(--blue);color:#fff;font-size:16px;font-weight:600;width:calc(100% - 32px);cursor:pointer}
+.cta:active{background:var(--blue2)}
+.cta:disabled{background:var(--s2);color:var(--t3)}
+
+/* QR SCANNER */
+.scanner{flex:1;display:flex;flex-direction:column;background:#0a0a0a;position:relative}
+.scan-view{flex:1;display:flex;align-items:center;justify-content:center;position:relative}
+.scan-frame{width:240px;height:240px;border:2px solid rgba(255,255,255,.3);border-radius:20px;position:relative;overflow:hidden}
+.scan-frame::before,.scan-frame::after{content:"";position:absolute;width:28px;height:28px;border-color:#0484FF;border-style:solid}
+.scan-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:8px 0 0 0}
+.scan-frame::after{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 8px 0 0}
+.scan-corners{position:absolute;inset:0}
+.scan-corners::before,.scan-corners::after{content:"";position:absolute;width:28px;height:28px;border-color:#0484FF;border-style:solid}
+.scan-corners::before{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 8px}
+.scan-corners::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 8px 0}
+.scan-line{position:absolute;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,#0484FF,transparent);animation:scan 2s ease-in-out infinite;top:20%}
+@keyframes scan{0%,100%{top:15%;opacity:.6}50%{top:80%;opacity:1}}
+.scan-hint{position:absolute;bottom:100px;left:0;right:0;text-align:center;color:rgba(255,255,255,.7);font-size:14px}
+.scan-actions{padding:16px 24px calc(20px + var(--safe));display:flex;justify-content:center;gap:24px}
+.scan-actions button{width:56px;height:56px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.scan-actions button.primary{background:var(--blue)}
+
+/* RISK */
+.risk{flex:1;display:flex;flex-direction:column;align-items:center;padding:24px 24px;text-align:center}
+.risk .xicon{width:72px;height:72px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.risk h2{font-size:17px;font-weight:600;margin-bottom:10px;line-height:1.35}
+.risk .addr{font-size:12px;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:4px;justify-content:center;word-break:break-all}
+.risk .reasons{background:#FEF2F2;border-radius:12px;padding:12px 14px;text-align:left;margin-bottom:24px;width:100%}
+.risk .reasons li{font-size:13px;color:#B91C1C;margin-bottom:5px;list-style:none;padding-left:12px;position:relative}
+.risk .reasons li::before{content:"•";position:absolute;left:0}
+.link{background:none;border:none;color:var(--blue);font-size:15px;font-weight:500;cursor:pointer;margin-top:10px}
+
+/* RECEIVE */
+.recv{display:flex;flex-direction:column;align-items:center;padding:28px 24px;text-align:center}
+.qr-box{width:200px;height:200px;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:12px;margin-bottom:18px;display:flex;align-items:center;justify-content:center}
+.qr-box canvas{width:100%;height:100%}
+.recv .lbl{font-size:13px;color:var(--t2);margin-bottom:4px}
+.recv .addr-t{font-size:13px;font-weight:500;word-break:break-all;padding:0 8px;margin-bottom:18px;line-height:1.4}
+
+/* SELL */
+.sell-amt{text-align:center;padding:20px 16px 6px}
+.sell-amt .bal{font-size:13px;color:var(--t2);margin-bottom:6px}
+.sell-amt .num{font-size:38px;font-weight:700;letter-spacing:-1px}
+.sell-amt .fiat{font-size:14px;color:var(--t2);margin-top:3px}
+.provider{margin:10px 16px;background:var(--s);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.provider img{width:26px;height:26px;border-radius:50%}
+.provider .pi{flex:1}
+.provider .pi strong{display:block;font-size:14px}
+.provider .pi span{font-size:12px;color:var(--t2)}
+.provider .best{font-size:13px;color:var(--green);font-weight:500}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:6px 20px 8px;margin-top:auto}
+.keypad button{height:50px;border:none;background:none;font-size:22px;font-weight:400;color:var(--t);cursor:pointer;border-radius:10px}
+.keypad button:active{background:var(--s)}
+
+/* DISCOVER */
+.sec-h{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 6px}
+.sec-h h3{font-size:16px;font-weight:600}
+.sec-h button{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer}
+.news{display:flex;gap:12px;padding:8px 16px;cursor:pointer}
+.news img{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--s);flex-shrink:0}
+.news .ni{flex:1}
+.news .ni .t{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:3px}
+.news .ni .s{font-size:11px;color:var(--t3)}
+.news .ni .tags{display:flex;gap:4px;margin-top:3px}
+.news .ni .tags span{font-size:10px;background:var(--s);padding:1px 5px;border-radius:3px;color:var(--t2)}
+.meme{display:flex;align-items:center;gap:12px;padding:9px 16px;cursor:pointer}
+.meme img{width:30px;height:30px;border-radius:50%}
+.meme .mm{flex:1}
+.meme .mm .n{font-size:14px;font-weight:600}
+.meme .mm .s{font-size:11px;color:var(--t2)}
+.meme .mr{text-align:right}
+.meme .mr .p{font-size:13px;font-weight:500}
+.meme .mr .c{font-size:11px}
+.meme .mr .c.up{color:var(--green)}
+.meme .mr .c.dn{color:var(--red)}
+
+/* EARN */
+.earn-row{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer}
+.earn-row img{width:34px;height:34px;border-radius:50%}
+.earn-row .en{flex:1;font-size:15px;font-weight:600}
+.earn-row .ea{font-size:15px;font-weight:600;color:var(--green)}
+
+/* SETTINGS */
+.sg-t{font-size:11px;color:var(--t3);padding:10px 16px 2px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.si{display:flex;align-items:center;padding:12px 16px;gap:12px;cursor:pointer}
+.si:active{background:var(--s)}
+.si-l{flex:1;font-size:15px;font-weight:500}
+.si-v{font-size:14px;color:var(--t2)}
+.si-c{color:var(--t3);font-size:16px}
+
+/* TOAST */
+.toast{position:absolute;bottom:calc(70px + var(--safe));left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:50;white-space:nowrap;max-width:90%}
+.toast.show{opacity:1}
+
+/* NFT */
+.nft-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px 24px}
+.nft-card{cursor:pointer}
+.nft-card .img{width:100%;aspect-ratio:1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:36px}
+.nft-card .nm{font-size:13px;font-weight:500;margin-top:5px}
+
+.ov{position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:40;display:none;align-items:flex-end}
+.ov.open{display:flex}
+.sh{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:10px 20px calc(18px + var(--safe))}
+.sh-h{width:36px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 14px}
+.sh-t{font-size:17px;font-weight:600;text-align:center;margin-bottom:12px}
+.net-row{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer}
+.net-row:active{background:var(--s)}
+.net-row img{width:36px;height:36px;border-radius:50%}
+.net-row .nn{flex:1;font-size:15px;font-weight:600}
+.net-row .ns{font-size:12px;color:var(--t2)}
+
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--bd);background:transparent;transition:all .15s}
+.pin-dot.filled{background:var(--blue);border-color:var(--blue)}
+.pin-dot.error{border-color:var(--red);background:var(--red)}
+
+.tx-row{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer}
+.tx-row:active{background:var(--s)}
+.tx-icon{width:40px;height:40px;border-radius:50%;background:var(--s);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tx-icon.send{color:var(--red)}
+.tx-icon.recv{color:var(--green)}
+.tx-m{flex:1;min-width:0}
+.tx-m .t{font-size:15px;font-weight:600}
+.tx-m .s{font-size:12px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tx-r{text-align:right}
+.tx-r .a{font-size:15px;font-weight:600}
+.tx-r .st{font-size:11px;color:var(--green);margin-top:2px}
+
+.review-card{margin:12px 16px;background:var(--s);border-radius:14px;padding:14px}
+.review-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;font-size:14px}
+.review-row .lbl{color:var(--t2)}
+.review-row .val{font-weight:600;text-align:right;max-width:60%;word-break:break-all}
+.review-row .val.muted{font-weight:500;color:var(--t2);font-size:13px}
+.success-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center}
+.success-check{width:72px;height:72px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.success-check svg{width:36px;height:36px;color:var(--green)}
+.tx-hash-box{background:var(--s);border-radius:12px;padding:12px 14px;margin:16px 0;width:100%;text-align:left}
+.tx-hash-box .lbl{font-size:11px;color:var(--t2);margin-bottom:4px}
+.tx-hash-box .hash{font-size:12px;font-weight:500;word-break:break-all;line-height:1.4;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+<div id="app">
+
+
+
+<!-- HISTORY -->
+<div class="sc" id="s-history">
+  <div class="hdr">
+    <button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t">History</div>
+    <div style="width:34px"></div>
+  </div>
+  <div class="scroll" id="history-list" style="padding:8px 0 24px">
+    <div style="padding:40px 24px;text-align:center;color:var(--t3);font-size:14px" id="history-empty">No transactions yet</div>
+  </div>
+</div>
+
+<!-- PASSCODE LOCK -->
+<div class="sc on" id="s-lock">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:var(--bg)">
+    <img src="data:image/png;base64,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" alt="Trust" style="width:72px;height:72px;border-radius:18px;margin-bottom:20px;box-shadow:0 4px 16px rgba(4,132,255,.2);object-fit:cover;background:#0484FF"
+      onerror="this.onerror=null;this.src='icons/icon-512.png';this.style.background='#0484FF'"/>
+    <div style="font-size:18px;font-weight:600;margin-bottom:6px">Enter Passcode</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:28px">Trust Wallet</div>
+    <div id="pin-dots" style="display:flex;gap:14px;margin-bottom:32px">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div id="pin-err" style="font-size:13px;color:var(--red);height:18px;margin-bottom:8px"></div>
+    <div class="keypad" style="width:100%;max-width:280px;margin:0">
+      <button onclick="pinKey('1')">1</button><button onclick="pinKey('2')">2</button><button onclick="pinKey('3')">3</button>
+      <button onclick="pinKey('4')">4</button><button onclick="pinKey('5')">5</button><button onclick="pinKey('6')">6</button>
+      <button onclick="pinKey('7')">7</button><button onclick="pinKey('8')">8</button><button onclick="pinKey('9')">9</button>
+      <button onclick="pinKey('')" style="visibility:hidden">.</button><button onclick="pinKey('0')">0</button><button onclick="pinKey('⌫')">⌫</button>
+    </div>
+    <button class="link" style="margin-top:20px" onclick="toast('Use biometrics')">Use Face ID / Fingerprint</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="sc" id="s-home">
+  <div class="home-pad">
+    <div class="hdr" style="padding-left:0;padding-right:0">
+      <button class="wallet-pill" onclick="go('settings')"><span class="wi">T</span> Main Wallet</button>
+      <div class="top-r">
+        <button class="ib" style="background:var(--s)" onclick="go('history');renderHistory()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
+        <button class="ib" style="background:var(--s)" onclick="go('scan')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></button>
+      </div>
+    </div>
+    <div class="promo" onclick="go('buy')">
+      <div class="promo-stack">
+        <img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png"/>
+        <img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png"/>
+        <img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png"/>
+      </div>
+      <div class="promo-t"><strong>bStocks now live, 0% fees</strong><span>Buy now</span></div>
+    </div>
+    <div class="bal"><div class="bal-n">$5,355,094.00</div><div class="bal-c">▲ $3,214.80 (0.06%)</div></div>
+    <div class="acts">
+      <button class="act" onclick="openSend(true)"><div class="act-i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></div><span>Send</span></button>
+      <button class="act" onclick="go('receive-net')"><div class="act-i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M17 7L7 17"/><path d="M17 17H7V7"/></svg></div><span>Receive</span></button>
+      <button class="act hi" onclick="go('swap')"><div class="act-i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg></div><span>Swap</span></button>
+      <button class="act" onclick="go('buy')"><div class="act-i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14"/><path d="M5 12h14"/></svg></div><span>Buy</span></button>
+    </div>
+    <div class="sec"><h3>Tokens <em>›</em></h3></div>
+  </div>
+  <div class="scroll pb" id="token-list" style="padding:0 16px"></div>
+  <div class="bnav">
+    <div class="pill">
+      <button class="ni on" onclick="go('home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+      <button class="ni" onclick="go('swap')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg></button>
+      <button class="ni" onclick="go('discover')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></button>
+      <button class="ni" onclick="go('browser')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></button>
+    </div>
+    <button class="sfab" onclick="toast('Search')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+  </div>
+</div>
+
+<!-- TOKEN -->
+<div class="sc" id="s-token">
+  <div class="hdr">
+    <button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t" id="td-name">Bitcoin</div>
+    <button class="ib"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+  </div>
+  <div class="scroll pb">
+    <div class="td-hero"><img id="td-img"/><div class="amt" id="td-amt">0 BTC</div><div class="fiat" id="td-fiat">≈ $0.00</div></div>
+    <div class="td-acts">
+      <button onclick="openSend(false)"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></div><span>Send</span></button>
+      <button onclick="go('receive-net')"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 7L7 17"/><path d="M17 17H7V7"/></svg></div><span>Receive</span></button>
+      <button onclick="go('buy')"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><span>Buy</span></button>
+      <button onclick="go('swap')"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg></div><span>Swap</span></button>
+    </div>
+    <div class="price-card">
+      <div class="ph"><span>Current <span id="td-sym">BTC</span> Price</span><button class="ib" style="width:24px;height:24px" onclick="this.closest('.price-card').style.display='none'">×</button></div>
+      <div class="pv" id="td-price">$27,226.91</div>
+      <div class="pc" id="td-chg">+1.54% · Tue, 19 Sep at 21:00</div>
+      <div class="chart"><svg viewBox="0 0 300 100" preserveAspectRatio="none"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16A34A" stop-opacity=".2"/><stop offset="100%" stop-color="#16A34A" stop-opacity="0"/></linearGradient></defs><path d="M0,70 L20,55 L40,60 L60,40 L80,75 L100,50 L120,45 L140,55 L160,35 L180,40 L200,30 L220,45 L240,25 L260,35 L280,20 L300,30" fill="none" stroke="#16A34A" stroke-width="2"/><path d="M0,70 L20,55 L40,60 L60,40 L80,75 L100,50 L120,45 L140,55 L160,35 L180,40 L200,30 L220,45 L240,25 L260,35 L280,20 L300,30 L300,100 L0,100Z" fill="url(#cg)"/><circle cx="200" cy="30" r="3.5" fill="#16A34A"/><line x1="200" y1="0" x2="200" y2="100" stroke="#16A34A" stroke-width="1" stroke-dasharray="3 3" opacity=".35"/></svg></div>
+      <div class="ranges"><button>1H</button><button class="on">1D</button><button>1W</button><button>1M</button><button>1Y</button><button>All</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- SWAP -->
+<div class="sc" id="s-swap">
+  <div class="hdr"><div style="width:34px"></div><div class="hdr-t">Swap</div><div style="width:34px"></div></div>
+  <div class="scroll pb">
+    <div class="swap-box">
+      <div class="swap-row"><label>You Pay</label></div>
+      <div class="swap-row"><input class="swap-amt" id="pay-amt" value="0" inputmode="decimal"/><div class="swap-tok" onclick="toast('Select token')"><img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png"/> BTC ▾</div></div>
+      <div class="swap-bal">Balance: 0.053249</div>
+    </div>
+    <div class="swap-mid"><button onclick="toast('Swapped direction')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/></svg></button></div>
+    <div class="swap-box">
+      <div class="swap-row"><label>You Get</label></div>
+      <div class="swap-row"><input class="swap-amt" id="get-amt" value="0" inputmode="decimal"/><div class="swap-tok" onclick="toast('Select token')"><img src="https://assets.coingecko.com/coins/images/325/small/Tether.png"/> USDT ▾</div></div>
+      <div class="swap-bal">≈ 0.00 · ERC20</div>
+    </div>
+    <button class="preview" id="preview-btn" onclick="openSwapPreview()">Preview swap</button>
+    <div class="quote"><span>Quote</span><span>1 BTC ≈ 27,221.00 USDT ↻</span></div>
+  </div>
+  <div class="bnav">
+    <div class="pill">
+      <button class="ni" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+      <button class="ni on" onclick="go('swap')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg></button>
+      <button class="ni" onclick="go('discover')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></button>
+      <button class="ni" onclick="go('browser')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></button>
+    </div>
+    <button class="sfab" onclick="toast('Search')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+  </div>
+</div>
+
+
+<!-- SEND TOKEN SELECT -->
+<div class="sc" id="s-send-select">
+  <div class="hdr">
+    <button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t">Send</div>
+    <div style="width:34px"></div>
+  </div>
+  <div style="padding:8px 16px">
+    <div style="display:flex;align-items:center;gap:8px;background:var(--s);border-radius:12px;padding:10px 14px;margin-bottom:8px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="send-search" type="text" placeholder="Search token" style="flex:1;border:none;background:none;font-size:15px;outline:none" oninput="filterSendTokens(this.value)"/>
+    </div>
+  </div>
+  <div style="padding:4px 16px 8px;font-size:13px;color:var(--t2)">Select asset</div>
+  <div class="scroll" id="send-token-list" style="padding-bottom:24px"></div>
+</div>
+
+<!-- SEND -->
+<div class="sc" id="s-send">
+  <div class="hdr">
+    <button class="ib" onclick="go('send-select')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t" id="send-title">Send</div>
+    <div style="width:34px"></div>
+  </div>
+  <div style="padding:0 16px 6px;font-size:12px;color:var(--t2)">Network: <span id="send-net-hint" style="color:var(--t);font-weight:500">—</span></div>
+  <div class="send-field">
+    <input type="text" id="send-addr" placeholder="Address or Domain Name"/>
+    <button class="scan" onclick="go('scan')" title="Scan QR"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></button>
+  </div>
+  <div class="send-field" style="margin-top:0">
+    <div style="flex:1">
+      <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Amount</div>
+      <input type="text" id="send-amount" placeholder="0.00" inputmode="decimal" style="width:100%;border:none;background:none;font-size:18px;font-weight:600;outline:none"/>
+    </div>
+    <button type="button" onclick="setMaxSend()" style="border:none;background:var(--s2);color:var(--blue);font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer">MAX</button>
+  </div>
+  <div style="padding:0 16px;font-size:12px;color:var(--t2)">Available: <span id="send-available">—</span></div>
+  <div style="flex:1"></div>
+  <button class="cta" onclick="checkSend()">Continue</button>
+</div>
+
+<!-- QR SCANNER -->
+
+<!-- QR SCANNER -->
+<div class="sc" id="s-scan">
+  <div class="hdr" style="background:#0a0a0a;color:#fff;position:relative;z-index:2">
+    <button class="ib" style="color:#fff" onclick="stopScanner();go('send')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t" style="color:#fff">Scan QR Code</div>
+    <div style="width:34px"></div>
+  </div>
+  <div class="scanner">
+    <div class="scan-view" style="position:relative;overflow:hidden">
+      <video id="scan-video" playsinline muted autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#111"></video>
+      <canvas id="scan-canvas" style="display:none"></canvas>
+      <div class="scan-frame" style="position:relative;z-index:1;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.45)">
+        <div class="scan-corners"></div>
+        <div class="scan-line"></div>
+      </div>
+      <div class="scan-hint" id="scan-status" style="z-index:2">Point camera at a wallet QR code</div>
+    </div>
+    <div class="scan-actions">
+      <button type="button" id="scan-flash" onclick="toggleFlash()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></button>
+      <button type="button" class="primary" onclick="stopScanner();go('send')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      <button type="button" onclick="document.getElementById('scan-file').click()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></button>
+      <input type="file" id="scan-file" accept="image/*" capture="environment" style="display:none" onchange="scanFromFile(this)"/>
+    </div>
+  </div>
+</div>
+
+<!-- SEND REVIEW -->
+<div class="sc" id="s-review">
+  <div class="hdr">
+    <button class="ib" onclick="go('send')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t">Confirm</div>
+    <div style="width:34px"></div>
+  </div>
+  <div class="scroll" style="padding-bottom:16px">
+    <div style="text-align:center;padding:20px 16px 8px">
+      <div style="font-size:13px;color:var(--t2);margin-bottom:6px">You send</div>
+      <div style="font-size:28px;font-weight:700" id="rv-amount">0 BTC</div>
+      <div style="font-size:14px;color:var(--t2);margin-top:4px" id="rv-fiat">≈ $0.00</div>
+    </div>
+    <div class="review-card">
+      <div class="review-row"><span class="lbl">Asset</span><span class="val" id="rv-asset">BTC</span></div>
+      <div class="review-row"><span class="lbl">Network</span><span class="val muted" id="rv-network">Bitcoin</span></div>
+      <div class="review-row"><span class="lbl">To</span><span class="val muted" id="rv-to">—</span></div>
+      <div class="review-row"><span class="lbl">Network fee</span><span class="val" id="rv-fee">≈ $0.00</span></div>
+      <div class="review-row"><span class="lbl">Max total</span><span class="val" id="rv-total">—</span></div>
+    </div>
+    <div style="padding:0 16px;font-size:12px;color:var(--t3);line-height:1.4">Network fees are estimates and may vary. The fee is paid in the network’s native token.</div>
+  </div>
+  <button class="cta" id="rv-confirm" onclick="submitSend()">Confirm Send</button>
+</div>
+
+<!-- SEND SUCCESS -->
+<div class="sc" id="s-success">
+  <div class="success-wrap">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px">Transaction submitted</div>
+    <div style="font-size:14px;color:var(--t2);margin-bottom:4px" id="sx-summary">You sent 0 BTC</div>
+    <div style="font-size:13px;color:var(--t3)" id="sx-network">Bitcoin</div>
+    <div class="tx-hash-box">
+      <div class="lbl">Transaction hash</div>
+      <div class="hash" id="sx-hash">0x…</div>
+    </div>
+    <button class="link" style="margin-bottom:8px" onclick="copyTxHash()">Copy hash</button>
+    <button class="cta" style="width:100%;max-width:280px;margin-top:8px" onclick="go('home')">Done</button>
+    <button class="link" onclick="go('history');renderHistory()">View history</button>
+  </div>
+</div>
+
+<!-- RECEIVE NETWORK SELECT -->
+<div class="sc" id="s-receive-net">
+  <div class="hdr">
+    <button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t">Receive</div>
+    <div style="width:34px"></div>
+  </div>
+  <div style="padding:8px 16px 4px;font-size:13px;color:var(--t2)">Select network</div>
+  <div class="scroll" id="net-list" style="padding-bottom:24px"></div>
+</div>
+
+<!-- RECEIVE ADDRESS -->
+<div class="sc" id="s-receive">
+  <div class="hdr">
+    <button class="ib" onclick="go('receive-net')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t" id="recv-title">Receive BTC</div>
+    <div style="width:34px"></div>
+  </div>
+  <div class="recv">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;background:var(--s);padding:8px 12px;border-radius:20px;font-size:13px;font-weight:500">
+      <img id="recv-net-img" src="" style="width:20px;height:20px;border-radius:50%"/>
+      <span id="recv-net-name">Bitcoin</span>
+    </div>
+    <div class="qr-box"><canvas id="qr-canvas" width="176" height="176"></canvas></div>
+    <div class="lbl">Your <span id="recv-asset-lbl">Bitcoin</span> Address</div>
+    <div class="addr-t" id="recv-addr">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</div>
+    <button class="cta" style="max-width:260px" onclick="copyAddr()">Copy Address</button>
+    <button class="link" onclick="toast('Shared')">Share</button>
+  </div>
+</div>
+
+<!-- BUY/SELL -->
+<div class="sc" id="s-buy">
+  <div class="hdr">
+    <button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+    <div class="hdr-t">Sell BTC</div>
+    <span style="font-size:13px;font-weight:600;background:var(--s);padding:4px 10px;border-radius:12px">USD</span>
+  </div>
+  <div style="margin:6px 16px;background:#F0F7FF;border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:8px;font-size:13px">
+    <span>💎</span><span style="flex:1">Reduced fees for holding 100+ TWT.</span>
+    <button style="background:none;border:none;color:var(--t3);font-size:16px;cursor:pointer" onclick="this.parentElement.style.display='none'">×</button>
+  </div>
+  <div class="sell-amt"><div class="bal">Balance: 0.01318 BTC</div><div class="num" id="sell-num">0.0032</div><div class="fiat">≈ $87.08 ↕</div></div>
+  <div class="provider" onclick="toast('Change provider')"><img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png"/><div class="pi"><strong>Binance P2P</strong><span>Third-Party Provider</span></div><span class="best">Best rate ›</span></div>
+  <div class="keypad" id="keypad"></div>
+  <button class="cta" onclick="toast('Sell order placed')">Sell BTC</button>
+</div>
+
+<!-- DISCOVER -->
+<div class="sc" id="s-discover">
+  <div class="hdr"><div style="width:34px"></div><div class="hdr-t">Discover</div><div style="width:34px"></div></div>
+  <div class="scroll pb">
+    <div class="sec-h"><h3>Trending news</h3><button>›</button></div>
+    <div class="news"><img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png"/><div class="ni"><div class="t">Dogecoin (DOGE) Price Prediction and Analysis</div><div class="s">COINTURK NEWS</div><div class="tags"><span>BTC</span><span>DOGE</span></div></div></div>
+    <div class="news"><div style="width:52px;height:52px;border-radius:10px;background:#1DA1F2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;flex-shrink:0">𝕏</div><div class="ni"><div class="t">Twitter Launches its First NFT Collection</div><div class="s">WatcherGuru</div></div></div>
+    <div class="news"><img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png"/><div class="ni"><div class="t">Price Prediction: Will ETH Reach $8000 Soon?</div><div class="s">Cryptopolitan</div><div class="tags"><span>ETH</span></div></div></div>
+    <div class="sec-h"><h3>Meme Coins</h3><button>›</button></div>
+    <div class="meme"><img src="https://assets.coingecko.com/coins/images/11939/small/shiba.png"/><div class="mm"><div class="n">SHIB</div><div class="s">Shiba Inu</div></div><div class="mr"><div class="p">$0.00000737</div><div class="c up">+1.49%</div></div></div>
+    <div class="meme"><div style="width:30px;height:30px;border-radius:50%;background:#F59E0B;display:flex;align-items:center;justify-content:center;font-size:13px">🐕</div><div class="mm"><div class="n">TURB</div><div class="s">Turbo</div></div><div class="mr"><div class="p">$0.00007043</div><div class="c up">+2.63%</div></div></div>
+    <div class="meme"><div style="width:30px;height:30px;border-radius:50%;background:#8B5CF6;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">M</div><div class="mm"><div class="n">$MONG</div><div class="s">MongCoin</div></div><div class="mr"><div class="p">$0.0000000063</div><div class="c dn">-1.39%</div></div></div>
+  </div>
+  <div class="bnav">
+    <div class="pill">
+      <button class="ni" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+      <button class="ni" onclick="go('swap')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg></button>
+      <button class="ni on" onclick="go('discover')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></button>
+      <button class="ni" onclick="go('browser')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></button>
+    </div>
+    <button class="sfab" onclick="toast('Search')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+  </div>
+</div>
+
+<!-- EARN -->
+<div class="sc" id="s-earn">
+  <div class="hdr"><button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="hdr-t">Earn</div><div style="width:34px"></div></div>
+  <div class="scroll"><div style="padding:10px 16px 2px;font-size:15px;font-weight:600">Native Staking</div><div id="earn-list"></div></div>
+</div>
+
+<!-- BROWSER -->
+<div class="sc" id="s-browser">
+  <div class="hdr"><div style="width:34px"></div><div class="hdr-t">Browser</div><div style="width:34px"></div></div>
+  <div class="scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;color:var(--t2)">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:10px"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <p style="font-size:15px">Web3 Browser</p>
+    <div style="margin-top:16px;width:100%;max-width:280px;display:flex;align-items:center;gap:8px;background:var(--s);border-radius:12px;padding:10px 14px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input style="flex:1;border:none;background:none;font-size:14px;outline:none" placeholder="Search or enter dApp URL"/>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="pill">
+      <button class="ni" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
+      <button class="ni" onclick="go('swap')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg></button>
+      <button class="ni" onclick="go('discover')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></button>
+      <button class="ni on" onclick="go('browser')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></button>
+    </div>
+    <button class="sfab" onclick="toast('Search')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="sc" id="s-settings">
+  <div class="hdr"><button class="ib" onclick="go('home')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><div class="hdr-t">Settings</div><div style="width:34px"></div></div>
+  <div class="scroll">
+    <div class="sg-t">Wallet</div>
+    <div class="si" onclick="toast('Wallets')"><div class="si-l">Wallets</div><div class="si-v">Main Wallet</div><div class="si-c">›</div></div>
+    <div class="si" onclick="toast('Security')"><div class="si-l">Security</div><div class="si-c">›</div></div>
+    <div class="si"><div class="si-l">Notifications</div><div class="si-c">›</div></div>
+    <div class="sg-t">Preferences</div>
+    <div class="si"><div class="si-l">Language</div><div class="si-v">English</div><div class="si-c">›</div></div>
+    <div class="si"><div class="si-l">Currency</div><div class="si-v">USD</div><div class="si-c">›</div></div>
+    <div class="si"><div class="si-l">Appearance</div><div class="si-v">Light</div><div class="si-c">›</div></div>
+    <div class="sg-t">About</div>
+    <div class="si"><div class="si-l">About Trust Wallet</div><div class="si-v">26.29.4</div><div class="si-c">›</div></div>
+    <div class="si"><div class="si-l">Terms of Service</div><div class="si-c">›</div></div>
+    <div class="si"><div class="si-l">Privacy Policy</div><div class="si-c">›</div></div>
+  </div>
+</div>
+
+
+<!-- SWAP PREVIEW SHEET -->
+<div class="ov" id="swap-preview" onclick="if(event.target===this)closeSwapPreview()">
+  <div class="sh" style="max-height:85%;overflow-y:auto">
+    <div class="sh-h"></div>
+    <div class="sh-t">Preview Swap</div>
+    <div style="padding:0 4px 8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd)">
+        <div>
+          <div style="font-size:12px;color:var(--t2)">You pay</div>
+          <div style="font-size:18px;font-weight:700" id="sp-pay">0 BTC</div>
+        </div>
+        <img id="sp-pay-img" src="" style="width:32px;height:32px;border-radius:50%"/>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd)">
+        <div>
+          <div style="font-size:12px;color:var(--t2)">You receive</div>
+          <div style="font-size:18px;font-weight:700" id="sp-get">0 USDT</div>
+        </div>
+        <img id="sp-get-img" src="" style="width:32px;height:32px;border-radius:50%"/>
+      </div>
+      <div style="padding:12px 0;font-size:13px;color:var(--t2)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Rate</span><span id="sp-rate" style="color:var(--t);font-weight:500">1 BTC ≈ 27,221 USDT</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Network fee</span><span id="sp-fee" style="color:var(--t);font-weight:500">~$1.24</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span>Provider</span><span style="color:var(--t);font-weight:500">Trust Swap</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Slippage</span><span style="color:var(--t);font-weight:500">1%</span></div>
+      </div>
+    </div>
+    <button class="cta" style="width:100%;max-width:100%;margin:8px 0 4px" onclick="confirmSwap()">Confirm Swap</button>
+    <button class="link" style="width:100%;margin-bottom:8px" onclick="closeSwapPreview()">Cancel</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+<script>
+const CG="https://assets.coingecko.com/coins/images";
+const tokens=[
+  {id:"usdt-bep",name:"USDT.Z",sym:"USDT.Z",amt:"5,000,000",fiat:"$5,000,000.00",price:"$1.00",chg:0.01,img:"icons/usdtz-128.png",badge:CG+"/825/small/bnb-icon2_2x.png",network:"BNB Smart Chain (BEP20)"},
+  {id:"btc",name:"Bitcoin",sym:"BTC",amt:"5.00",fiat:"$136,134.55",price:"$27,226.91",chg:1.54,img:CG+"/1/small/bitcoin.png",badge:null,network:"Bitcoin"},
+  {id:"usdt-erc",name:"Tether",sym:"USDT",amt:"101,456.32",fiat:"$101,456.32",price:"$1.00",chg:0.01,img:CG+"/325/small/Tether.png",badge:CG+"/279/small/ethereum.png",network:"Ethereum (ERC20)"},
+  {id:"usdt-trc",name:"Tether",sym:"USDT",amt:"98,743.17",fiat:"$98,743.17",price:"$1.00",chg:0.02,img:CG+"/325/small/Tether.png",badge:CG+"/1094/small/tron-logo.png",network:"Tron (TRC20)"},
+  {id:"eth",name:"Ethereum",sym:"ETH",amt:"2.50",fiat:"$4,122.25",price:"$1,648.90",chg:0.52,img:CG+"/279/small/ethereum.png",badge:CG+"/279/small/ethereum.png",network:"Ethereum"},
+  {id:"bnb",name:"BNB",sym:"BNB",amt:"12.50",fiat:"$7,501.50",price:"$600.12",chg:0.8,img:CG+"/825/small/bnb-icon2_2x.png",badge:null,network:"BNB Smart Chain"},
+  {id:"sol",name:"Solana",sym:"SOL",amt:"45.00",fiat:"$6,736.50",price:"$149.70",chg:2.1,img:CG+"/4128/small/solana.png",badge:null,network:"Solana"},
+  {id:"twt",name:"Trust Wallet Token",sym:"TWT",amt:"500.00",fiat:"$400.00",price:"$0.80",chg:-0.1,img:CG+"/11085/small/Trust.png",badge:null,network:"BNB Smart Chain"},
+];
+const earn=[
+  {n:"EVMOS",a:"36.00%",i:CG+"/28292/small/evmos.jpeg"},{n:"STARS",a:"27.84%",i:CG+"/22363/small/stars.png"},
+  {n:"ATOM",a:"18.85%",i:CG+"/1481/small/cosmos_hub.png"},{n:"KAVA",a:"16.41%",i:CG+"/9761/small/kava.png"},
+  {n:"DOT",a:"15.12%",i:CG+"/12171/small/polkadot.png"},{n:"INJ",a:"14.50%",i:CG+"/12882/small/injective.jpg"},
+  {n:"OSMO",a:"10.74%",i:CG+"/16724/small/osmo.png"},{n:"CRO",a:"8.41%",i:CG+"/7310/small/cro_token_logo.png"},
+];
+
+function go(id){
+  document.querySelectorAll(".sc").forEach(s=>s.classList.remove("on"));
+  const el=document.getElementById("s-"+id);
+  if(el)el.classList.add("on");
+  
+}
+let currentAsset = tokens[0];
+function openToken(t){
+  currentAsset = t;
+  document.getElementById("td-name").textContent=t.name + (t.network && (t.sym==="USDT" || t.sym==="USDT.Z") ? " ("+t.network.replace(/.*\(/,"").replace(")","")+")" : "");
+  document.getElementById("td-img").src=t.img;
+  document.getElementById("td-amt").textContent=t.amt+" "+t.sym;
+  document.getElementById("td-fiat").textContent="≈ "+t.fiat;
+  document.getElementById("td-sym").textContent=t.sym;
+  document.getElementById("td-price").textContent=t.price;
+  document.getElementById("td-chg").textContent=(t.chg>=0?"+":"")+t.chg+"% · Tue, 19 Sep at 21:00";
+  go("token");
+}
+function openSend(fromHome){
+  if (fromHome) {
+    renderSendTokenList();
+    go("send-select");
+    return;
+  }
+  // from token detail – use that asset
+  const t = currentAsset || tokens[0];
+  startSendForToken(t);
+}
+
+function renderSendTokenList(filter){
+  const q = (filter||"").toLowerCase();
+  const list = tokens.filter(t => !q || t.name.toLowerCase().includes(q) || t.sym.toLowerCase().includes(q) || (t.network||"").toLowerCase().includes(q));
+  const el = document.getElementById("send-token-list");
+  if (!list.length) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--t3)">No tokens found</div>';
+    return;
+  }
+  el.innerHTML = list.map(t => {
+    const net = t.network || t.name;
+    const mm = net.match(/\(([^)]+)\)/);
+    const short = mm ? mm[1] : net;
+    const badge = t.badge ? '<div class="bdg"><img src="'+t.badge+'"/></div>' : '';
+    const label = (t.sym==="USDT" || t.sym==="USDT.Z" || t.network) ? (' <span style="font-size:11px;color:var(--t3);font-weight:500">'+short+'</span>') : '';
+    return '<div class="net-row" data-id="'+t.id+'">' +
+      '<div class="tok-i" style="width:36px;height:36px;position:relative">' +
+      '<img src="'+t.img+'" style="width:36px;height:36px;border-radius:50%"/>' + badge +
+      '</div><div style="flex:1;min-width:0"><div class="nn">'+t.name+label+'</div>' +
+      '<div class="ns">'+t.amt+' '+t.sym+'</div></div>' +
+      '<div style="text-align:right"><div style="font-size:14px;font-weight:600">'+t.fiat+'</div></div></div>';
+  }).join("");
+  el.querySelectorAll(".net-row").forEach(row => {
+    row.onclick = () => {
+      const t = tokens.find(x => x.id === row.getAttribute("data-id"));
+      if (t) startSendForToken(t);
+    };
+  });
+}
+function filterSendTokens(v){ renderSendTokenList(v); }
+
+
+
+function simulateScan(){
+  const addr="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  document.getElementById("send-addr").value=addr;
+  toast("QR scanned · address filled");
+  setTimeout(()=>go("send"),600);
+}
+function toast(m){
+  const t=document.getElementById("toast");
+  t.textContent=m;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1800);
+}
+function copyAddr(){
+  const a=document.getElementById("recv-addr").textContent;
+  if(navigator.clipboard)navigator.clipboard.writeText(a);
+  toast("Address copied");
+}
+
+
+(function(){
+  const list = document.getElementById("token-list");
+  if (!list) return;
+  list.innerHTML = tokens.map(t => {
+    const netTag = (t.network && (t.sym==="USDT" || t.sym==="USDT.Z")) ? (' <span style="font-size:11px;color:var(--t3);font-weight:500">'+t.network.replace(/.*\(/,"").replace(")","")+'</span>') : '';
+    const badge = t.badge ? '<div class="bdg"><img src="'+t.badge+'"/></div>' : '';
+    const chgCls = t.chg>=0 ? "up" : "dn";
+    const chgTxt = (t.chg>=0?"+":"") + t.chg + "%";
+    return '<div class="tok" data-id="'+t.id+'">' +
+      '<div class="tok-i"><img src="'+t.img+'" alt="'+t.sym+'"/>'+badge+'</div>' +
+      '<div class="tok-m"><div class="n">'+t.name+netTag+'</div><div class="a">'+t.amt+' '+t.sym+'</div></div>' +
+      '<div class="tok-r"><div class="f">'+t.fiat+'</div><div class="c '+chgCls+'">'+chgTxt+'</div></div></div>';
+  }).join("") + '<button class="viewall">View all ›</button><div class="sec" style="margin-top:8px"><h3>Perps <em>›</em></h3></div><p style="font-size:13px;color:var(--t3);padding:4px 0 20px">No open positions</p>';
+  list.querySelectorAll(".tok").forEach(row => {
+    row.onclick = () => {
+      const t = tokens.find(x => x.id === row.getAttribute("data-id"));
+      if (t) openToken(t);
+    };
+  });
+  // Keep portfolio total in sync with token balances
+  if (typeof refreshPortfolioUI === "function") refreshPortfolioUI();
+})();
+document.getElementById("earn-list").innerHTML=earn.map(e=>`
+  <div class="earn-row" onclick="toast('Stake ${e.n}')"><img src="${e.i}" onerror="this.style.background='#EEF0F3'"/><div class="en">${e.n}</div><div class="ea">${e.a} APR</div></div>`).join("");
+
+const keys=["1","2","3","4","5","6","7","8","9",".","0","⌫"];
+document.getElementById("keypad").innerHTML=keys.map(k=>`<button onclick="keyPress('${k}')">${k}</button>`).join("");
+let sellVal="0.0032";
+function keyPress(k){
+  if(k==="⌫")sellVal=sellVal.slice(0,-1)||"0";
+  else if(k==="."&&sellVal.includes("."))return;
+  else if(sellVal==="0"&&k!==".")sellVal=k;
+  else sellVal+=k;
+  document.getElementById("sell-num").textContent=sellVal;
+}
+document.querySelectorAll(".ranges button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ranges button").forEach(x=>x.classList.remove("on"));b.classList.add("on")});
+document.getElementById("pay-amt").oninput=function(){document.getElementById("preview-btn").classList.toggle("ready",parseFloat(this.value)>0)};
+
+const networks = [
+  {id:"btc", name:"Bitcoin", symbol:"BTC", addr:"bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", img:CG+"/1/small/bitcoin.png"},
+  {id:"eth", name:"Ethereum", symbol:"ETH", addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", img:CG+"/279/small/ethereum.png"},
+  {id:"bsc", name:"BNB Smart Chain", symbol:"BNB", addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", img:CG+"/825/small/bnb-icon2_2x.png"},
+  {id:"sol", name:"Solana", symbol:"SOL", addr:"7EqQdEULxWcraVx3mXKFjc84LhCkMGZCkRuDhcqx9bQ", img:CG+"/4128/small/solana.png"},
+  {id:"matic", name:"Polygon", symbol:"MATIC", addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", img:CG+"/4713/small/polygon.png"},
+  {id:"avax", name:"Avalanche", symbol:"AVAX", addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", img:CG+"/12559/small/Avalanche_Circle_RedWhite_Trans.png"},
+  {id:"arb", name:"Arbitrum", symbol:"ETH", addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", img:CG+"/16547/small/photo_2023-03-29_21.47.00.jpeg"},
+  {id:"op", name:"Optimism", symbol:"ETH", addr:"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0", img:CG+"/25244/small/Optimism.png"},
+];
+
+document.getElementById("net-list").innerHTML = networks.map(n => `
+  <div class="net-row" onclick='selectNetwork(${JSON.stringify(n)})'>
+    <img src="${n.img}" alt="${n.name}" onerror="this.style.background='#EEF0F3'"/>
+    <div><div class="nn">${n.name}</div><div class="ns">${n.symbol}</div></div>
+    <span style="color:var(--t3)">›</span>
+  </div>
+`).join("");
+
+function selectNetwork(n) {
+  document.getElementById("recv-title").textContent = "Receive " + n.symbol;
+  document.getElementById("recv-net-img").src = n.img;
+  document.getElementById("recv-net-name").textContent = n.name;
+  document.getElementById("recv-asset-lbl").textContent = n.name;
+  document.getElementById("recv-addr").textContent = n.addr;
+  go("receive");
+  drawQR(n.addr);
+}
+
+function openSwapPreview() {
+  const pay = parseFloat(document.getElementById("pay-amt").value) || 0;
+  if (pay <= 0) { toast("Enter an amount to swap"); return; }
+  const rate = 27221;
+  const get = (pay * rate).toFixed(2);
+  document.getElementById("sp-pay").textContent = pay + " BTC";
+  document.getElementById("sp-get").textContent = get + " USDT";
+  document.getElementById("sp-pay-img").src = CG+"/1/small/bitcoin.png";
+  document.getElementById("sp-get-img").src = CG+"/325/small/Tether.png";
+  document.getElementById("sp-rate").textContent = "1 BTC ≈ " + rate.toLocaleString() + " USDT";
+  document.getElementById("sp-fee").textContent = "≈ $" + (pay * 0.5 + 0.8).toFixed(2);
+  document.getElementById("get-amt").value = get;
+  document.getElementById("swap-preview").classList.add("open");
+}
+function closeSwapPreview() {
+  document.getElementById("swap-preview").classList.remove("open");
+}
+function confirmSwap() {
+  closeSwapPreview();
+  toast("Swap submitted");
+  document.getElementById("pay-amt").value = "0";
+  document.getElementById("get-amt").value = "0";
+  document.getElementById("preview-btn").classList.remove("ready");
+}
+
+// Override preview button
+const pbtn = document.getElementById("preview-btn");
+if (pbtn) pbtn.onclick = openSwapPreview;
+
+// Update drawQR to accept address string
+function drawQR(addr) {
+  const c = document.getElementById("qr-canvas");
+  if (!c) return;
+  const ctx = c.getContext("2d");
+  const s = 176, n = 25, cell = s / n;
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, s, s);
+  ctx.fillStyle = "#111";
+  const seed = addr || "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  function bit(i) { return (seed.charCodeAt(i % seed.length) * 7 + i * 13) % 3 === 0; }
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const finder = (x < 7 && y < 7) || (x > n - 8 && y < 7) || (x < 7 && y > n - 8);
+    if (finder) {
+      const fx = x < 7 ? x : x - (n - 7), fy = y < 7 ? y : y - (n - 7);
+      if (fx === 0 || fx === 6 || fy === 0 || fy === 6 || (fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4))
+        ctx.fillRect(x * cell, y * cell, cell, cell);
+    } else if (bit(x * n + y)) ctx.fillRect(x * cell + 0.5, y * cell + 0.5, cell - 1, cell - 1);
+  }
+}
+
+// pay amount live quote
+document.getElementById("pay-amt").addEventListener("input", function() {
+  const v = parseFloat(this.value) || 0;
+  document.getElementById("preview-btn").classList.toggle("ready", v > 0);
+  document.getElementById("get-amt").value = v > 0 ? (v * 27221).toFixed(2) : "0";
+});
+
+
+let pinBuf = "";
+function pinKey(k) {
+  const err = document.getElementById("pin-err");
+  if (err) err.textContent = "";
+  document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("error"));
+  if (k === "⌫") pinBuf = pinBuf.slice(0, -1);
+  else if (k && pinBuf.length < 6) pinBuf += k;
+  document.querySelectorAll(".pin-dot").forEach((d, i) => {
+    d.classList.toggle("filled", i < pinBuf.length);
+  });
+  if (pinBuf.length === 6) {
+    pinBuf = "";
+    document.querySelectorAll(".pin-dot").forEach(d => d.classList.remove("filled"));
+    go("home");
+  }
+}
+
+
+// --- Mutable portfolio + history ---
+const txHistory = [];
+function parseAmt(s){ return parseFloat(String(s).replace(/[^0-9.\-]/g,"")) || 0; }
+function fmtAmt(n, decimals){
+  if (n >= 1000) return n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  const d = decimals != null ? decimals : (n < 1 ? 6 : 4);
+  return n.toLocaleString("en-US", {minimumFractionDigits:0, maximumFractionDigits:d});
+}
+function priceOf(t){ return parseAmt(t.price); }
+function refreshPortfolioUI(){
+  let total = 0;
+  tokens.forEach(t => {
+    const amt = parseAmt(t.amt);
+    const px = parseAmt(t.price);
+    total += amt * px;
+    t.fiat = "$" + (amt * px).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  });
+  const balN = document.querySelector(".bal-n");
+  if (balN) {
+    balN.textContent = "$" + total.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  const list = document.getElementById("token-list");
+  if (!list) return;
+  list.innerHTML = tokens.map(t => {
+    const netTag = (t.network && (t.sym==="USDT" || t.sym==="USDT.Z")) ? (' <span style="font-size:11px;color:var(--t3);font-weight:500">'+t.network.replace(/.*\(/,"").replace(")","")+'</span>') : '';
+    const badge = t.badge ? '<div class="bdg"><img src="'+t.badge+'"/></div>' : '';
+    const chgCls = t.chg>=0 ? "up" : "dn";
+    const chgTxt = (t.chg>=0?"+":"") + t.chg + "%";
+    return '<div class="tok" data-id="'+t.id+'">' +
+      '<div class="tok-i"><img src="'+t.img+'" alt="'+t.sym+'"/>'+badge+'</div>' +
+      '<div class="tok-m"><div class="n">'+t.name+netTag+'</div><div class="a">'+t.amt+' '+t.sym+'</div></div>' +
+      '<div class="tok-r"><div class="f">'+t.fiat+'</div><div class="c '+chgCls+'">'+chgTxt+'</div></div></div>';
+  }).join("") + '<button class="viewall">View all ›</button><div class="sec" style="margin-top:8px"><h3>Perps <em>›</em></h3></div><p style="font-size:13px;color:var(--t3);padding:4px 0 20px">No open positions</p>';
+  list.querySelectorAll(".tok").forEach(row => {
+    row.onclick = () => {
+      const t = tokens.find(x => x.id === row.getAttribute("data-id"));
+      if (t) openToken(t);
+    };
+  });
+}
+
+function setMaxSend(){
+  const t = currentAsset || tokens[0];
+  document.getElementById("send-amount").value = String(parseAmt(t.amt));
+}
+function startSendForToken(t){
+  currentAsset = t;
+  const netLabel = t.network ? (t.network.match(/\(([^)]+)\)/) ? t.network.match(/\(([^)]+)\)/)[1] : t.network) : "";
+  const title = "Send " + t.sym + (netLabel ? " · " + netLabel : "");
+  const st = document.getElementById("send-title");
+  if(st) st.textContent = title;
+  const rt = document.getElementById("risk-title");
+  if(rt) rt.textContent = title;
+  const netHint = document.getElementById("send-net-hint");
+  if(netHint) netHint.textContent = t.network || t.name;
+  const avail = document.getElementById("send-available");
+  if(avail) avail.textContent = t.amt + " " + t.sym;
+  document.getElementById("send-addr").value = "";
+  const amtEl = document.getElementById("send-amount");
+  if(amtEl) amtEl.value = "";
+  go("send");
+}
+/* checkSend -> review */
+/* executeSend removed */
+function renderHistory(){
+  const box = document.getElementById("history-list");
+  if(!box) return;
+  if(!txHistory.length){
+    box.innerHTML = '<div style="padding:40px 24px;text-align:center;color:var(--t3);font-size:14px">No transactions yet</div>';
+    return;
+  }
+  box.innerHTML = txHistory.map(tx => {
+    const shortTo = tx.to.length > 16 ? tx.to.slice(0,8)+"…"+tx.to.slice(-6) : tx.to;
+    const feeLine = tx.fee ? (" · fee "+tx.fee) : "";
+    return '<div class="tx-row" onclick="toast(\''+tx.id.slice(0,18)+'…\')">' +
+      '<div class="tx-icon send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></div>' +
+      '<div class="tx-m"><div class="t">Sent '+tx.sym+'</div>' +
+      '<div class="s">To '+shortTo+' · '+tx.time+feeLine+'</div></div>' +
+      '<div class="tx-r"><div class="a" style="color:var(--red)">−'+fmtAmt(tx.amount)+' '+tx.sym+'</div>' +
+      '<div class="st">'+tx.status+'</div></div></div>';
+  }).join("");
+}
+
+
+// Override risk "Proceed anyway" and make Go back safe
+
+
+// --- Gas fee simulation (USD estimates by network) ---
+const GAS_FEES = {
+  "Bitcoin": { feeUsd: 1.85, feeNative: "0.000068 BTC", symbol: "BTC" },
+  "Ethereum": { feeUsd: 2.40, feeNative: "0.00145 ETH", symbol: "ETH" },
+  "Ethereum (ERC20)": { feeUsd: 3.15, feeNative: "0.0019 ETH", symbol: "ETH" },
+  "Tron (TRC20)": { feeUsd: 0.28, feeNative: "15 TRX", symbol: "TRX" },
+  "BNB Smart Chain": { feeUsd: 0.12, feeNative: "0.00025 BNB", symbol: "BNB" },
+  "BNB Smart Chain (BEP20)": { feeUsd: 0.12, feeNative: "0.00025 BNB", symbol: "BNB" },
+  "Solana": { feeUsd: 0.02, feeNative: "0.00015 SOL", symbol: "SOL" },
+  "Polygon": { feeUsd: 0.05, feeNative: "0.08 MATIC", symbol: "MATIC" },
+  "Avalanche": { feeUsd: 0.18, feeNative: "0.005 AVAX", symbol: "AVAX" },
+  "Arbitrum": { feeUsd: 0.08, feeNative: "0.00005 ETH", symbol: "ETH" },
+  "Optimism": { feeUsd: 0.06, feeNative: "0.00004 ETH", symbol: "ETH" }
+};
+function gasFor(t){
+  const key = t.network || t.name;
+  return GAS_FEES[key] || GAS_FEES[t.name] || { feeUsd: 0.50, feeNative: "—", symbol: t.sym };
+}
+function genTxHash(){
+  const hex = "0123456789abcdef";
+  let h = "0x";
+  for (let i = 0; i < 64; i++) h += hex[Math.floor(Math.random() * 16)];
+  return h;
+}
+
+
+function checkSend(){
+  const v = document.getElementById("send-addr").value.trim();
+  const amt = parseAmt(document.getElementById("send-amount") ? document.getElementById("send-amount").value : "0");
+  const t = currentAsset || tokens[0];
+  if(!v){ toast("Enter an address or scan QR"); return; }
+  if(amt <= 0){ toast("Enter an amount"); return; }
+  if(amt > parseAmt(t.amt) + 1e-12){ toast("Insufficient balance"); return; }
+  const gas = gasFor(t);
+  window._pendingSend = { tokenId: t.id, amount: amt, to: v, gas: gas };
+  // fill review UI
+  document.getElementById("rv-amount").textContent = fmtAmt(amt) + " " + t.sym;
+  document.getElementById("rv-fiat").textContent = "≈ $" + fmtAmt(amt * priceOf(t), 2);
+  document.getElementById("rv-asset").textContent = t.name + " (" + t.sym + ")";
+  document.getElementById("rv-network").textContent = t.network || t.name;
+  document.getElementById("rv-to").textContent = v;
+  document.getElementById("rv-fee").textContent = gas.feeNative + " (≈ $" + gas.feeUsd.toFixed(2) + ")";
+  document.getElementById("rv-total").textContent = fmtAmt(amt) + " " + t.sym + " + fee";
+  go("review");
+}
+function submitSend(){
+  const p = window._pendingSend;
+  if(!p){ go("home"); return; }
+  const t = tokens.find(x => x.id === p.tokenId);
+  if(!t){ toast("Token not found"); return; }
+  const bal = parseAmt(t.amt);
+  if(p.amount > bal + 1e-12){ toast("Insufficient balance"); return; }
+
+  // Show pending / broadcasting state on review button
+  const btn = document.getElementById("rv-confirm");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Broadcasting…";
+    btn.style.opacity = "0.7";
+  }
+
+  // Simulate network confirmation delay 5–6 seconds
+  const delay = 5000 + Math.floor(Math.random() * 1000);
+  setTimeout(function() {
+    const next = bal - p.amount;
+    const decimals = (t.sym === "USDT" || t.sym === "TWT") ? 2 : 4;
+    t.amt = fmtAmt(Math.max(0, next), decimals);
+    const px = parseAmt(t.price);
+    t.fiat = "$" + (Math.max(0, next) * px).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    const hash = genTxHash();
+    const now = new Date();
+    txHistory.unshift({
+      type: "send",
+      sym: t.sym,
+      name: t.name,
+      network: t.network || t.name,
+      amount: p.amount,
+      to: p.to,
+      img: t.img,
+      time: now.toLocaleString(),
+      status: "Completed",
+      fee: p.gas.feeNative,
+      feeUsd: p.gas.feeUsd,
+      id: hash
+    });
+
+    document.getElementById("sx-summary").textContent = "You sent " + fmtAmt(p.amount) + " " + t.sym;
+    document.getElementById("sx-network").textContent = (t.network || t.name) + " · fee " + p.gas.feeNative;
+    document.getElementById("sx-hash").textContent = hash;
+    window._lastTxHash = hash;
+    window._pendingSend = null;
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Confirm Send";
+      btn.style.opacity = "1";
+    }
+
+    refreshPortfolioUI();
+    if (currentAsset && currentAsset.id === t.id) {
+      currentAsset = t;
+      const a = document.getElementById("td-amt");
+      if (a) a.textContent = t.amt + " " + t.sym;
+      const f = document.getElementById("td-fiat");
+      if (f) f.textContent = "≈ " + t.fiat;
+    }
+    go("success");
+  }, delay);
+}
+function copyTxHash(){
+  const h = window._lastTxHash || (document.getElementById("sx-hash") && document.getElementById("sx-hash").textContent);
+  if(h && navigator.clipboard) navigator.clipboard.writeText(h);
+  toast("Hash copied");
+}
+
+
+// --- Real QR Scanner ---
+let _scanStream = null;
+let _scanLoop = 0;
+let _scanDetector = null;
+let _flashOn = false;
+
+function extractAddress(raw) {
+  if (!raw) return "";
+  let s = String(raw).trim();
+  // ethereum:0x... or bitcoin:... URI schemes
+  const uri = s.match(/^(?:ethereum|bitcoin|bnb|solana|tron):([^?&\s]+)/i);
+  if (uri) s = uri[1];
+  // EIP-681 style payment URIs
+  const pay = s.match(/^(?:ethereum:)?(0x[a-fA-F0-9]{40})/i);
+  if (pay) return pay[1];
+  // bare hex address
+  if (/^0x[a-fA-F0-9]{40}$/i.test(s)) return s;
+  // BTC bech32 / legacy
+  if (/^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$/i.test(s)) return s;
+  // TRON
+  if (/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(s)) return s;
+  // Solana base58-ish
+  if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(s) && !/\s/.test(s)) return s;
+  // fallback: if it looks like an address string, use whole thing
+  if (s.length >= 26 && s.length <= 128 && !/\s/.test(s)) return s;
+  return s;
+}
+
+function onAddressScanned(text) {
+  const addr = extractAddress(text);
+  if (!addr) {
+    const st = document.getElementById("scan-status");
+    if (st) st.textContent = "No address found — try again";
+    return;
+  }
+  stopScanner();
+  const input = document.getElementById("send-addr");
+  if (input) input.value = addr;
+  toast("Address scanned");
+  go("send");
+}
+
+async function startScanner() {
+  stopScanner();
+  const video = document.getElementById("scan-video");
+  const status = document.getElementById("scan-status");
+  if (status) status.textContent = "Starting camera…";
+  try {
+    _scanStream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    video.srcObject = _scanStream;
+    await video.play();
+    if (status) status.textContent = "Point camera at a wallet QR code";
+    if ("BarcodeDetector" in window) {
+      try {
+        _scanDetector = new BarcodeDetector({ formats: ["qr_code"] });
+      } catch (e) { _scanDetector = null; }
+    }
+    _scanLoop = requestAnimationFrame(scanFrame);
+  } catch (err) {
+    console.warn(err);
+    if (status) status.textContent = "Camera unavailable — use gallery or enter address";
+    toast("Camera permission needed");
+  }
+}
+
+function scanFrame() {
+  const video = document.getElementById("scan-video");
+  const canvas = document.getElementById("scan-canvas");
+  if (!video || video.readyState < 2) {
+    _scanLoop = requestAnimationFrame(scanFrame);
+    return;
+  }
+  const w = video.videoWidth;
+  const h = video.videoHeight;
+  if (!w || !h) {
+    _scanLoop = requestAnimationFrame(scanFrame);
+    return;
+  }
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(video, 0, 0, w, h);
+
+  const finish = (raw) => {
+    if (raw) onAddressScanned(raw);
+    else _scanLoop = requestAnimationFrame(scanFrame);
+  };
+
+  if (_scanDetector) {
+    _scanDetector.detect(canvas).then(codes => {
+      if (codes && codes.length && codes[0].rawValue) finish(codes[0].rawValue);
+      else finish(null);
+    }).catch(() => {
+      decodeWithJsQR(ctx, w, h, finish);
+    });
+  } else {
+    decodeWithJsQR(ctx, w, h, finish);
+  }
+}
+
+function decodeWithJsQR(ctx, w, h, finish) {
+  if (typeof jsQR === "undefined") {
+    finish(null);
+    return;
+  }
+  try {
+    const img = ctx.getImageData(0, 0, w, h);
+    const code = jsQR(img.data, img.width, img.height, { inversionAttempts: "dontInvert" });
+    finish(code && code.data ? code.data : null);
+  } catch (e) {
+    finish(null);
+  }
+}
+
+function stopScanner() {
+  if (_scanLoop) { cancelAnimationFrame(_scanLoop); _scanLoop = 0; }
+  if (_scanStream) {
+    _scanStream.getTracks().forEach(t => t.stop());
+    _scanStream = null;
+  }
+  const video = document.getElementById("scan-video");
+  if (video) {
+    video.pause();
+    video.srcObject = null;
+  }
+  _flashOn = false;
+}
+
+async function toggleFlash() {
+  if (!_scanStream) return;
+  const track = _scanStream.getVideoTracks()[0];
+  if (!track) return;
+  const caps = track.getCapabilities && track.getCapabilities();
+  if (!caps || !caps.torch) { toast("Flash not available"); return; }
+  _flashOn = !_flashOn;
+  try {
+    await track.applyConstraints({ advanced: [{ torch: _flashOn }] });
+  } catch (e) { toast("Flash not available"); }
+}
+
+function scanFromFile(input) {
+  const file = input.files && input.files[0];
+  input.value = "";
+  if (!file) return;
+  const status = document.getElementById("scan-status");
+  if (status) status.textContent = "Reading image…";
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = () => {
+    const canvas = document.getElementById("scan-canvas");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    if (typeof jsQR !== "undefined") {
+      try {
+        const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(data.data, data.width, data.height);
+        if (code && code.data) { onAddressScanned(code.data); return; }
+      } catch (e) {}
+    }
+    if ("BarcodeDetector" in window) {
+      const det = new BarcodeDetector({ formats: ["qr_code"] });
+      det.detect(canvas).then(codes => {
+        if (codes && codes.length && codes[0].rawValue) onAddressScanned(codes[0].rawValue);
+        else { if (status) status.textContent = "No QR found in image"; toast("No QR code found"); }
+      }).catch(() => { if (status) status.textContent = "No QR found in image"; toast("No QR code found"); });
+      return;
+    }
+    if (status) status.textContent = "No QR found in image";
+    toast("No QR code found");
+  };
+  img.onerror = () => toast("Could not read image");
+  img.src = url;
+}
+
+// Hook go() to start/stop camera
+(function() {
+  const _go = window.go;
+  window.go = function(id) {
+    if (id !== "scan") stopScanner();
+    _go(id);
+    if (id === "scan") setTimeout(startScanner, 200);
+  };
+})();
+
+
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+
+// Recalc total balance from tokens (includes 5,000,000 USDT.Z)
+if (typeof refreshPortfolioUI === "function") refreshPortfolioUI();
+</script>
+</body>
+</html>
